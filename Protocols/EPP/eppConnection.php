@@ -1033,6 +1033,9 @@ class eppConnection {
     }
 
     private function showLog() {
+
+        return; // do not show
+
         echo "==== LOG ====\n";
         if (property_exists($this, 'logentries')) {
             foreach ($this->logentries as $logentry) {

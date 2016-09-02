@@ -21,12 +21,19 @@ class eppHttpConnection extends eppConnection {
     protected $ch = null;
 
     /**
-     * Response
      *
-     * @var string
+     * logs for audit logging
+     *
      */
+    protected $response = null;
 
-    private $response = null;
+    protected $responseHeaders = null;
+
+    protected $request = null;
+
+    protected $requestHeaders = null;
+
+    protected $additionalInfo = null;
 
     /**
      * No need to connect
@@ -75,6 +82,7 @@ class eppHttpConnection extends eppConnection {
             // Logging mode - set curl to verbose
             if ($this->logging) {
                 curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                curl_setopt($ch, CURLOPT_HEADERFUNCTION, [&$this, 'logReceiveHeader']);
             }
 
             if ($postMode) {
@@ -112,8 +120,15 @@ class eppHttpConnection extends eppConnection {
         }
 
         $this->writeLog($content,'WRITE');
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+
         curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
         $response = curl_exec($ch);
+
+        $info = curl_getinfo($ch);
+        $this->setAdditionalInfo($info);
+        $this->setRequest($info[$content]);
+        $this->setRequestHeaders($info['request_header']);
 
         $error = curl_errno($ch);
 
@@ -145,6 +160,56 @@ class eppHttpConnection extends eppConnection {
         return $response;
     }
 
+    protected function logReceiveHeader($curl, $singleHeaderLine) {
 
+        if ($this->getResponseHeaders() === null) {
+            $this->setResponseHeaders($singleHeaderLine);
+        } else {
+            $responseHeaders = $this->getResponseHeaders();
+            $responseHeaders[] = $singleHeaderLine;
+            $this->setResponseHeaders($responseHeaders);
+        }
+    }
+
+    // getters
+    public function getResponse() {
+        return $this->response;
+    }
+
+    public function getResponseHeaders() {
+        return $this->responseHeaders;
+    }
+
+    public function getRequest() {
+        return $this->request;
+    }
+
+    public function getRequestHeaders() {
+        return $this->requestHeaders;
+    }
+
+    public function getAdditionalInfo() {
+        return $this->additionalInfo;
+    }
+
+    // setters
+    protected function setResponse($response) {
+        $this->response = $response;
+    }
+
+    protected function setResponseHeaders($responseHeaders) {
+        $this->responseHeaders = $responseHeaders;
+    }
+
+    protected function setRequest($request) {
+        $this->request = $request;
+    }
+
+    protected function setRequestHeaders($requestHeaders) {
+        $this->requestHeaders = $requestHeaders;
+    }
+
+    protected function setAdditionalInfo($additionalInfo) {
+        $this->additionalInfo = $additionalInfo;
+    }
 }
-
