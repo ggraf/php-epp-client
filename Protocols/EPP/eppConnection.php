@@ -1047,4 +1047,8 @@ class eppConnection {
             $this->logentries[] = "-----" . $action . "-----" . date("Y-m-d H:i:s") . "-----\n" . $text . "\n-----END-----" . date("Y-m-d H:i:s") . "-----\n";
         }
     }
+
+    public function getLogentries() {
+        return $this->logentries;
+    }
 }
