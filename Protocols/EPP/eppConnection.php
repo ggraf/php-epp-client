@@ -496,7 +496,7 @@ class eppConnection {
                 }
                 //$this->writeLog("Read 4 bytes for integer. (read: " . strlen($read) . "):$read","READ");
                 $length = $this->readInteger($read) - 4;
-                $this->writeLog("Reading next: $length bytes","READ");
+                //$this->writeLog("Reading next: $length bytes","READ");
             }
             if ($length > 1000000) {
                 throw new eppException("Packet size is too big: $length. Closing connection",0,null,null,$read);
@@ -560,7 +560,7 @@ class eppConnection {
      * @throws eppException
      */
     public function write($content) {
-        $this->writeLog("Writing: " . strlen($content) . " + 4 bytes","WRITE");
+        //$this->writeLog("Writing: " . strlen($content) . " + 4 bytes","WRITE");
         $content = $this->addInteger($content);
         if (!is_resource($this->connection)) {
             throw new eppException ('Writing while no connection is made is not supported.');
@@ -671,6 +671,25 @@ class eppConnection {
     }
 
     /**
+     * Error handler for loadxml() so that a nice exception is thrown
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param string $errline
+     * @return bool
+     * @throws eppException
+     */
+    function HandleXmlError($errno, $errstr, $errfile, $errline)
+    {
+        if ($errno==E_WARNING && (substr_count($errstr,"DOMDocument::loadXML()")>0))
+        {
+            throw new eppException('ERROR reading EPP message: '.str_replace('DOMDocument::loadXML(): ','',$errstr),$errno, null, $errfile.'('.$errline.')');
+        }
+        else
+            return false;
+    }
+
+    /**
      * Write the content domDocument to the stream
      * Read the answer
      * Load the answer in a response domDocument
@@ -736,7 +755,9 @@ class eppConnection {
             }
 
             if (strlen($xml)) {
+                set_error_handler(array($this,'HandleXmlError'));
                 if ($response->loadXML($xml)) {
+                    restore_error_handler();
                     $this->writeLog($response->saveXML(null, LIBXML_NOEMPTYTAG),"READ");
                     /*
                     ob_flush();
@@ -753,8 +774,11 @@ class eppConnection {
                         $response->validateServices($this->getLanguage(), $this->getVersion());
                     }
                     return $response;
+                } else {
+                    restore_error_handler();
                 }
             } else {
+
                 throw new eppException('Empty XML document when receiving data!');
             }
         } else {
