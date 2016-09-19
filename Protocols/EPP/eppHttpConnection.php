@@ -20,20 +20,6 @@ class eppHttpConnection extends eppConnection {
 
     protected $ch = null;
 
-    /**
-     *
-     * logs for audit logging
-     *
-     */
-    protected $response = null;
-
-    protected $responseHeaders = null;
-
-    protected $request = null;
-
-    protected $requestHeaders = null;
-
-    protected $additionalInfo = null;
 
     /**
      * No need to connect
@@ -130,9 +116,13 @@ class eppHttpConnection extends eppConnection {
         $this->setRequest($info[$content]);
         $this->setRequestHeaders($info['request_header']);
 
+        $this->writeLog("Request Headers: " . var_export($info['request_header'], true), 'WRITE');
+        $this->writeLog("Additional Info: " . var_export($info, true), 'WRITE');
+
         $error = curl_errno($ch);
 
         if ($error) {
+            $this->writeLog("Curl Error: " . var_export($error, true), 'WRITE');
             throw new eppException(sprintf('Error occurred while executing CURL %d: %s', $error, curl_error($ch)),$error,null,curl_error($ch));
         }
 
@@ -169,47 +159,5 @@ class eppHttpConnection extends eppConnection {
             $responseHeaders[] = $singleHeaderLine;
             $this->setResponseHeaders($responseHeaders);
         }
-    }
-
-    // getters
-    public function getResponse() {
-        return $this->response;
-    }
-
-    public function getResponseHeaders() {
-        return $this->responseHeaders;
-    }
-
-    public function getRequest() {
-        return $this->request;
-    }
-
-    public function getRequestHeaders() {
-        return $this->requestHeaders;
-    }
-
-    public function getAdditionalInfo() {
-        return $this->additionalInfo;
-    }
-
-    // setters
-    protected function setResponse($response) {
-        $this->response = $response;
-    }
-
-    protected function setResponseHeaders($responseHeaders) {
-        $this->responseHeaders = $responseHeaders;
-    }
-
-    protected function setRequest($request) {
-        $this->request = $request;
-    }
-
-    protected function setRequestHeaders($requestHeaders) {
-        $this->requestHeaders = $requestHeaders;
-    }
-
-    protected function setAdditionalInfo($additionalInfo) {
-        $this->additionalInfo = $additionalInfo;
     }
 }

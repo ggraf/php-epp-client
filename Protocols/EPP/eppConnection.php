@@ -124,7 +124,8 @@ class eppConnection {
      */
     protected $allow_self_signed = null;
 
-    protected $logentries = array();
+    protected $logentries = [];
+    protected $logentriesQueue = [];
 
     protected $checktransactionids = true;
 
@@ -137,6 +138,21 @@ class eppConnection {
      * @var bool Is the client logged in to the server
      */
     protected $loggedin = false;
+
+    /**
+     *
+     * logs for audit logging
+     *
+     */
+    protected $response = null;
+
+    protected $responseHeaders = null;
+
+    protected $request = null;
+
+    protected $requestHeaders = null;
+
+    protected $additionalInfo = null;
 
     /**
      * @param string $configfile
@@ -744,6 +760,10 @@ class eppConnection {
         }
         $content->formatOutput = true;
         $this->writeLog($content->saveXML(null, LIBXML_NOEMPTYTAG),"WRITE");
+
+        // audit log
+        $this->setRequest($content->saveXML(null, LIBXML_NOEMPTYTAG));
+
         $content->formatOutput = false;
         if ($this->write($content->saveXML(null, LIBXML_NOEMPTYTAG))) {
             $readcounter = 0;
@@ -753,6 +773,9 @@ class eppConnection {
                 $xml = $this->read();
                 $readcounter++;
             }
+
+            // audit log
+            $this->setResponse($xml);
 
             if (strlen($xml)) {
                 set_error_handler(array($this,'HandleXmlError'));
@@ -1068,14 +1091,89 @@ class eppConnection {
         }
     }
 
-    protected function writeLog($text,$action) {
+    protected function writeLog($text, $action) {
+
         if ($this->logging) {
-            //echo "-----".date("Y-m-d H:i:s")."-----".$text."-----end-----\n";
-            $this->logentries[] = "-----" . $action . "-----" . date("Y-m-d H:i:s") . "-----\n" . $text . "\n-----END-----" . date("Y-m-d H:i:s") . "-----\n";
+            $logentry = [
+                'action' => $action,
+                'date' => date("Y-m-d H:i:s"),
+                'text' => $text,
+            ];
+
+            $this->logentries[] = $logentry; // faster array_push
+            $this->logentriesQueue[] = $logentry; // faster array_push
         }
     }
 
-    public function getLogentries() {
+    /**
+     * @return array all Log entries if consumed or not
+     */
+    public function getAllLogEntries() : array
+    {
         return $this->logentries;
+    }
+
+    /*
+     * @return array new log entries since last function call
+     */
+    public function getNewLogEntries() : array
+    {
+        $returnArray = [];
+
+        while (($element = array_shift($this->logentriesQueue)) !== null) {
+            $returnArray[] = $element;
+        }
+
+        return $returnArray;
+    }
+
+    // getters
+    public function getResponse() {
+        return $this->response;
+    }
+
+    public function getResponseHeaders() {
+        return $this->responseHeaders;
+    }
+
+    public function getRequest() {
+        return $this->request;
+    }
+
+    public function getRequestHeaders() {
+        return $this->requestHeaders;
+    }
+
+    public function getAdditionalInfo() {
+        return $this->additionalInfo;
+    }
+
+    public function resetAuditLogVars() {
+        $this->setRequest(null);
+        $this->setResponseHeaders(null);
+        $this->setRequest(null);
+        $this->setRequestHeaders(null);
+        $this->setAdditionalInfo(null);
+    }
+
+    // setters
+    protected function setResponse($response) {
+        $this->response = $response;
+    }
+
+    protected function setResponseHeaders($responseHeaders) {
+        $this->responseHeaders = $responseHeaders;
+    }
+
+    protected function setRequest($request) {
+        $this->request = $request;
+    }
+
+    protected function setRequestHeaders($requestHeaders) {
+        $this->requestHeaders = $requestHeaders;
+    }
+
+    protected function setAdditionalInfo($additionalInfo) {
+        $this->additionalInfo = $additionalInfo;
     }
 }
