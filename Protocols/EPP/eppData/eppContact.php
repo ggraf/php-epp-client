@@ -74,7 +74,7 @@ class eppContact {
         $this->setVoice($voice);
         $this->setFax($fax);
         $this->setStatus($status);
-        $this->setPassword(self::generateRandomString(10));
+        //$this->setPassword(self::generateRandomString(10)); //?WTF
     }
 
     public function setDisclose($disclose) {
@@ -177,7 +177,7 @@ class eppContact {
      */
 
     public function setPassword($password) {
-        if ($password) {
+        if ($password !== null) {
             $this->password = htmlspecialchars($password, ENT_COMPAT, "UTF-8");
         } else {
             $this->password = null;

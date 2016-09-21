@@ -2,14 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: thomasm
- * Date: 25.09.2015
- * Time: 10:44
+ * Date: 11.09.2015
+ * Time: 09:28
  */
 
 namespace Metaregistrar\EPP;
 
 
-class apEppUpdateContactExtension extends atEppExtensionChain
+class atEppCreateContactExtension extends atEppExtensionChain
 {
     protected $atEppContact=null;
 
@@ -24,16 +24,12 @@ class apEppUpdateContactExtension extends atEppExtensionChain
     public function setEppRequestExtension(eppRequest $request,\DOMElement $extension)
     {
         $request->addExtension('xmlns:xsi', atEppConstants::w3SchemaLocation);
-
-        $contactExt_ = $request->createElement('at-ext-contact:update');
+        $contactExt_ = $request->createElement('at-ext-contact:create');
         $contactExt_->setAttribute('xmlns:at-ext-contact', atEppConstants::namespaceAtExtContact);
         $contactExt_->setAttribute('xsi:schemaLocation', atEppConstants::schemaLocationAtExtContact);
-
-        $extChange_ = $request->createElement('at-ext-contact:chg');
         $facet_ = $request->createElement('at-ext-contact:type');
         $facet_->appendChild(new \DOMText($this->atEppContact->getPersonType()));
-        $extChange_->appendChild($facet_);
-        $contactExt_->appendChild($extChange_);
+        $contactExt_->appendChild($facet_);
         $extension->appendchild($contactExt_);
         if(!is_null($this->additionaEppExtension))
         {

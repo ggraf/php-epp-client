@@ -27,8 +27,16 @@ class atEppCreateContactRequest extends eppCreateContactRequest {
         # Object create structure
         #
 
-        $create = $this->createElement('create');
+        // remove other child beforehand
+        $childNodes = $this->getCommand()->childNodes;
 
+        foreach ($childNodes as $singleChildNode) {
+            if ($singleChildNode->nodeName == 'create') {
+                $this->getCommand()->removeChild($singleChildNode);
+            }
+        }
+
+        $create = $this->createElement('create');
 
         $this->contactobject = $this->createElement('contact:create');
         $this->contactobject->setAttribute('xmlns:contact',atEppConstants::namespaceContact);

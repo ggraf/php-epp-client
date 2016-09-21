@@ -1,5 +1,8 @@
 <?php
 
+include_once(dirname(__FILE__) . '/eppExtensions/atEppExtension.php');
+include_once(dirname(__FILE__) . '/eppExtensions/atEppCreateContactExtension.php');
+include_once(dirname(__FILE__) . '/eppExtensions/atEppUpdateContactExtension.php');
 include_once(dirname(__FILE__) . '/eppRequests/atEppCreateContactRequest.php');
 include_once(dirname(__FILE__) . '/eppRequests/atEppUpdateContactRequest.php');
 include_once(dirname(__FILE__) . '/eppRequests/atEppCreateDomainRequest.php');

@@ -716,6 +716,10 @@ class eppConnection {
      * @throws eppException
      */
     public function writeandread($content) {
+
+        // reset last request, response, etc.
+        $this->resetAuditLogVars();
+
         $requestsessionid = $content->getSessionId();
         $namespaces = $this->getDefaultNamespaces();
         if (is_array($namespaces)) {
