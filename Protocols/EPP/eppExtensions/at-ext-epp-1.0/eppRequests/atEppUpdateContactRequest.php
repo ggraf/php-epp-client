@@ -32,6 +32,16 @@ class atEppUpdateContactRequest extends eppUpdateContactRequest
      * @return \domElement
      */
     public function updateContact($contactid,atEppContact $addInfo,atEppContact $removeInfo,atEppContact $updateInfo) {
+
+        // remove other child beforehand
+        $childNodes = $this->getCommand()->childNodes;
+
+        foreach ($childNodes as $singleChildNode) {
+            if ($singleChildNode->nodeName == 'update') {
+                $this->getCommand()->removeChild($singleChildNode);
+            }
+        }
+
         #
         # Object create structure
         #
@@ -43,12 +53,12 @@ class atEppUpdateContactRequest extends eppUpdateContactRequest
             $this->addContactChanges($chgcmd, $updateInfo);
             $this->contactobject->appendChild($chgcmd);
         }
-        if ($removeInfo instanceof eppContact) {
+        if ($removeInfo instanceof eppContact && $removeInfo->getPostalInfoLength() != 0) {
             $remcmd = $this->createElement('contact:rem');
             $this->addContactStatus($remcmd, $removeInfo);
             $this->contactobject->appendChild($remcmd);
         }
-        if ($addInfo instanceof eppContact) {
+        if ($addInfo instanceof eppContact && $removeInfo->getPostalInfoLength() != 0) {
             $addcmd = $this->createElement('contact:add');
             $this->addContactStatus($addcmd, $addInfo);
             $this->contactobject->appendChild($addcmd);
