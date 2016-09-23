@@ -17,7 +17,7 @@ class atEppCreateDomainRequest extends eppCreateDomainRequest
 
     function __construct($createinfo,atEppExtensionChain $atEppExtensionChain=null) {
         $this->atEppExtensionChain = $atEppExtensionChain;
-        parent::__construct($createinfo);
+        parent::__construct($createinfo, true);
     }
 
 
