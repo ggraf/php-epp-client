@@ -81,6 +81,111 @@ class eppPollResponse extends eppResponse {
         }
     }
 
+    public function getMessageType() {
+        if ($this->getResultCode() == eppResponse::RESULT_NO_MESSAGES) {
+            return null;
+        } else {
+            $xpath = $this->xPath();
+            $xpath->registerNamespace('at-ext-message', 'http://www.nic.at/xsd/at-ext-message-1.0');
+            $result = $xpath->query('/epp:epp/epp:response/epp:resData/at-ext-message:message/@type');
+
+            if (isset($result->item(0)->nodeValue) && !empty($result->item(0)->nodeValue)) {
+                echo '____________node: ' . $result->item(0)->nodeValue;
+                return $result->item(0)->nodeValue;
+            }
+
+            echo 'nil___________';
+            return null;
+        }
+    }
+
+    public function getMessageDataAsNode() {
+
+        if ($this->getResultCode() == eppResponse::RESULT_NO_MESSAGES) {
+            return null;
+        } else {
+
+            $xpath = $this->xPath();
+            $result = $xpath->query('/epp:epp/epp:response/epp:resData/epp:message/epp:data');
+
+            if ($result && isset($result->item(0)->nodeValue) && !empty($result->item(0)->nodeValue)) {
+                return $result->item(0);
+            }
+
+            return null;
+        }
+    }
+
+    public function getMessageDataFlattened() {
+
+        $returnArray = [];
+
+        var_dump($this->getMessageDataAsNode());
+
+        if ((self::getElementsByTagNameFromDOMNode($this->getMessageDataAsNode() , "entry"))->length > 0) { // its something to flatten
+
+            foreach (self::getElementsByTagNameFromDOMNode($this->getMessageDataAsNode() , "entry") as $singleEntry) {
+                $returnArray[$singleEntry->getAttribute('name')] = $singleEntry->nodeValue;
+            }
+
+            return $returnArray;
+
+        } elseif ((self::getElementsByTagNameFromDOMNode($this->getMessageDataAsNode() , "epp"))->length > 0) { // its a submessage
+
+            $eppResponse = new \Metaregistrar\EPP\eppPollResponse();
+            $eppResponse->loadXML($this->getMessageDataAsNode()->textContent);
+
+            return $eppResponse;
+        }
+
+        return null;
+    }
+
+    public static function getElementsByTagNameFromDOMNode($domNode, $tagName) {
+
+        $doc = new \DOMDocument();
+
+        var_dump($domNode);
+
+        foreach ($domNode->childNodes as $singleEntry) {
+            if ($singleEntry->nodeName == $tagName) {
+                $elem = $doc->appendChild($singleEntry);
+            }
+        }
+
+        return $doc->childNodes;
+
+    }
+
+    public function getMessageTransactionAsNode() {
+
+        if ($this->getResultCode() == eppResponse::RESULT_NO_MESSAGES) {
+
+            return null;
+
+        } else {
+
+            $xpath = $this->xPath();
+            $result = $xpath->query('/epp:epp/epp:response/epp:resData/epp:message/epp:data/epp:epp/epp:response/epp:trID');
+
+            if (isset($result->item(0)->nodeValue) && !empty($result->item(0)->nodeValue)) {
+                return $result->item(0);
+            }
+
+            return null;
+        }
+    }
+
+    public function getMessageTransactionAsArrayFlattened() {
+
+        $returnArray = [];
+
+        foreach (self::getElementsByTagNameFromDOMNode($this->getMessageTransactionAsNode() , "entry") as $singleEntry) {
+            $returnArray[$singleEntry->nodeName] = $singleEntry->nodeValue;
+        }
+
+        return $returnArray;
+    }
 
     public function getDomainName() {
         $xpath = $this->xPath();

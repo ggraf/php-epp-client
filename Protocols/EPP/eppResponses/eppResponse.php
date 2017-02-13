@@ -474,6 +474,7 @@ class eppResponse extends \DOMDocument {
         $xpath = new \DOMXpath($this);
         $this->defaultnamespace = $this->documentElement->lookupNamespaceUri(NULL);
         $xpath->registerNamespace('epp', $this->defaultnamespace);
+
         if (is_array($this->xpathuri)) {
             foreach ($this->xpathuri as $uri => $namespace) {
                 if ($namespace != 'epp') { // epp was already registered as default namespace, see above
