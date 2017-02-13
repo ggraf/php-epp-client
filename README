@@ -37,6 +37,7 @@ Currently supported registries:
 - Openprovider
 - Ficora (.fi)
 - DNS.PT (.pt)
+- Norid (.no)
 
 
 All code changes are tested automatically with the phpunit tests in the Tests directory
@@ -66,8 +67,8 @@ How to use this repository
 - Use the Examples/checkdomain.php and create a connection to your favorite registry (for example new Metaregistrar\EPP\metaregEppConnection())
 - Create a settings.ini in with the following contents:
         interface=eppConnection
-        hostname=ssl://epp.test2.metaregistrar.com
-        port=7443
+        hostname=ssl://eppltest1.metaregistrar.com
+        port=7000
         userid=xxxxxxxx
         password=xxxxxxxxx
 - Now, checkdomain.php should be functioning and checking domains.
@@ -77,7 +78,7 @@ $conn = Metaregistrar\EPP\eppConnection::create('path-to-settings.ini');
 
 Or set all parameters individually:
 $conn = Metaregistrar\EPP\eppConnection();
-$conn->setHostname('ssl://epp.test2.metaregistrar.com'); // Hostname may vary depending on the registry selected
-$conn->setPort(7443); // Port may vary depending on the registry selected
+$conn->setHostname('ssl://eppltest1.metaregistrar.com'); // Hostname may vary depending on the registry selected
+$conn->setPort(7000); // Port may vary depending on the registry selected
 $conn->setUsername('xxxxxxxx');
 $conn->setPassword('xxxxxxxxx');

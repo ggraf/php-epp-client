@@ -37,7 +37,7 @@ class eppContact {
     const TYPE_INT = 'int';
     const TYPE_AUTO = 'auto';
 
-
+    private $id = null;
     private $postalInfo = array();
     private $voice=null;
     private $fax=null;
@@ -69,6 +69,7 @@ class eppContact {
                 }
             }
         }
+        $this->setId($this->generateContactId());
         $this->setEmail($email);
         $this->setPassword($password);
         $this->setVoice($voice);
@@ -233,7 +234,7 @@ class eppContact {
      * @return string
      * @throws eppException
      */
-    private function validatePhoneNumber($number) {
+    protected function validatePhoneNumber($number) {
         //Format the phone number according to EPP formatting rules.
         if (!strlen($number)) {
             return null;
@@ -246,6 +247,24 @@ class eppContact {
         }
         return $number;
     }
+
+    /**
+     * @return null
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param null $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+
 
     /**
      *

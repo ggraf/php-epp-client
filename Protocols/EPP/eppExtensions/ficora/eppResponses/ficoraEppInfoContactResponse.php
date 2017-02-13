@@ -5,11 +5,13 @@ class ficoraEppInfoContactResponse extends eppInfoContactResponse {
 
     /**
      * A helper function for retriving xpath query results.
-     * @return mixed query result or null if missing
+     * @param $query
+     * @param null $cast
+     * @return mixed query result as string or casted type or null if missing
      */
     protected function getXpathQueryResult($query, $cast = null)
     {
-        $xpath = $this->xpath();
+        $xpath = $this->xPath();
         $result = $xpath->query($query);
         if ($result->length > 0) {
             $value = $result->item(0)->nodeValue;
@@ -69,19 +71,6 @@ class ficoraEppInfoContactResponse extends eppInfoContactResponse {
             if ($testname->length > 0) {
                 $name = $testname->item(0)->nodeValue;
             }
-
-            // special handling for first and last name
-            $testfirstname = $postalresult->getElementsByTagName('firstname');
-            $firstname = null;
-            if ($testfirstname->length > 0) {
-                $firstname = $testfirstname->item(0)->nodeValue;
-            }
-            $testlastname = $postalresult->getElementsByTagName('lastname');
-            $lastname = null;
-            if ($testlastname->length > 0) {
-                $lastname = $testlastname->item(0)->nodeValue;
-            }
-
             $testorg = $postalresult->getElementsByTagName('org');
             $org = null;
             if ($testorg->length > 0) {
@@ -124,8 +113,49 @@ class ficoraEppInfoContactResponse extends eppInfoContactResponse {
                     }
                 }
             }
-            $postalinfo[] = new ficoraEppContactPostalInfo($name, $city, $country, $org, $streets, $province, $zipcode, $type, $firstname, $lastname);
+
+            // special handling for ficora specific elements
+            $firstName = $this->getElementValueByTagNameOrDefault($postalresult, 'firstname');
+            $lastName = $this->getElementValueByTagNameOrDefault($postalresult, 'lastname');
+            $isFinnish = $this->getElementValueByTagNameOrDefault($postalresult, 'isFinnish');
+            $birthDate = $this->getElementValueByTagNameOrDefault($postalresult, 'birthDate');
+            $identity = $this->getElementValueByTagNameOrDefault($postalresult, 'identity');
+            $registerNumber = $this->getElementValueByTagNameOrDefault($postalresult, 'registernumber');
+
+            $postalinfo[] = new ficoraEppContactPostalInfo(
+                $name,
+                $city,
+                $country,
+                $org,
+                $streets,
+                $province,
+                $zipcode,
+                $type,
+                $firstName,
+                $lastName,
+                $isFinnish,
+                $identity,
+                $birthDate,
+                $registerNumber
+            );
         }
         return $postalinfo;
+    }
+
+    /**
+     * Returns value of first matching element or default value if no matches
+     * @param  \DOMElement $element      Element to query
+     * @param  string      $tagName      Tag name
+     * @param  mixed      $defaultValue Default value 
+     * @return mixed                    Element value or default value
+     */
+    private function getElementValueByTagNameOrDefault(\DOMElement $element, $tagName, $defaultValue = null)
+    {
+        $result = $element->getElementsByTagName($tagName);
+        if ($result->length > 0) {
+            return $result->item(0)->nodeValue;
+        }
+
+        return $defaultValue;
     }
 }
