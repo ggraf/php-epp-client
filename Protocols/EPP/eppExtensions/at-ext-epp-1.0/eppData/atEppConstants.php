@@ -19,6 +19,7 @@ class atEppConstants
     const namespaceAtExtContact='http://www.nic.at/xsd/at-ext-contact-1.0';
     const schemaLocationAtExtContact='http://www.nic.at/xsd/at-ext-contact-1.0 at-ext-contact-1.0.xsd';
 
+    const namespaceAtExtMessage='http://www.nic.at/xsd/at-ext-message-1.0';
 
     const namespaceContact='urn:ietf:params:xml:ns:contact-1.0';
     const schemaLocationContact='urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd';

@@ -107,8 +107,6 @@ class eppPollResponse extends eppResponse {
 
         $returnArray = [];
 
-        var_dump($this->getMessageDataAsNode());
-
         if ((self::getElementsByTagNameFromDOMNode($this->getMessageDataAsNode() , "entry"))->length > 0) { // its something to flatten
 
             foreach (self::getElementsByTagNameFromDOMNode($this->getMessageDataAsNode() , "entry") as $singleEntry) {
@@ -131,8 +129,6 @@ class eppPollResponse extends eppResponse {
     public static function getElementsByTagNameFromDOMNode($domNode, $tagName) {
 
         $doc = new \DOMDocument();
-
-        var_dump($domNode);
 
         foreach ($domNode->childNodes as $singleEntry) {
             if ($singleEntry->nodeName == $tagName) {
