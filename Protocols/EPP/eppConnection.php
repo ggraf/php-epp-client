@@ -464,9 +464,13 @@ class eppConnection {
             // $response->Success() will trigger an eppException when fails have occurred
             $response->Success();
             return $response;
+
         } else {
+
+            return $response; // allow generic responses
+
             /* @var $response eppResponse */
-            throw new eppException("Return class $check expected, but received a ".get_class($response)." class",0,null,null,$eppRequest->saveXML());
+            //throw new eppException("Return class $check expected, but received a ".get_class($response)." class",0,null,null,$eppRequest->saveXML());
         }
     }
 
@@ -826,7 +830,10 @@ class eppConnection {
             }
         }
         if (!$response) {
-            throw new eppException('No valid response class found for request class '.get_class($request));
+            //throw new eppException('No valid response class found for request class '.get_class($request));
+
+            // allow generic response
+            $response = new \Metaregistrar\EPP\eppResponse($request);
         }
         return $response;
     }
