@@ -132,7 +132,8 @@ class eppPollResponse extends eppResponse {
 
         foreach ($domNode->childNodes as $singleEntry) {
             if ($singleEntry->nodeName == $tagName) {
-                $elem = $doc->appendChild($singleEntry);
+                $imported = $doc->importNode($singleEntry);
+                $elem = $doc->appendChild($imported);
             }
         }
 
