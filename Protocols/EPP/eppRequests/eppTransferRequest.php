@@ -32,7 +32,7 @@ class eppTransferRequest extends eppRequest {
                     }
                     $this->setDomainRequest($object);
                 } elseif ($object instanceof eppContactHandle) {
-                    $this->setContactQuery($object);
+                    $this->setContactRequest($object);
                 }
                 break;
             case self::OPERATION_CANCEL:
@@ -177,7 +177,9 @@ class eppTransferRequest extends eppRequest {
         }
         if (strlen($domain->getAuthorisationCode())) {
             $authinfo = $this->createElement('domain:authInfo');
-            $authinfo->appendChild($this->createElement('domain:pw', $domain->getAuthorisationCode()));
+            $pw = $authinfo->appendChild($this->createElement('domain:pw'));
+            $pw->appendChild($this->createCDATASection($domain->getAuthorisationCode()));
+            //$authinfo->appendChild($this->createElement('domain:pw', $domain->getAuthorisationCode()));
             $this->domainobject->appendChild($authinfo);
         }
         $transfer->appendChild($this->domainobject);
@@ -193,6 +195,11 @@ class eppTransferRequest extends eppRequest {
         $transfer->setAttribute('op', self::OPERATION_REQUEST);
         $this->contactobject = $this->createElement('contact:transfer');
         $this->contactobject->appendChild($this->createElement('contact:id', $contact->getContactHandle()));
+	if (strlen($contact->getPassword())) {
+	    $authinfo = $this->createElement('contact:authInfo');
+	    $authinfo->appendChild($this->createElement('contact:pw', $contact->getPassword()));
+	    $this->contactobject->appendChild($authinfo);
+	}
         $transfer->appendChild($this->contactobject);
         $this->getCommand()->appendChild($transfer);
     }

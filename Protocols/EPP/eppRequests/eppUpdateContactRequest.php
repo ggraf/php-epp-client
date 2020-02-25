@@ -15,11 +15,7 @@ class eppUpdateContactRequest extends eppContactRequest {
                 throw new eppException("Object name must be valid string on eppUpdateContactRequest");
             }
         }
-        if (($addinfo instanceof eppContact) || ($removeinfo instanceof eppContact) || ($updateinfo instanceof eppContact)) {
-            $this->updateContact($contacthandle, $addinfo, $removeinfo, $updateinfo);
-        } else {
-            throw new eppException('addinfo, removeinfo and updateinfo needs to be eppContact object on eppUpdateContactRequest');
-        }
+        $this->updateContact($contacthandle, $addinfo, $removeinfo, $updateinfo);
         $this->addSessionId();
     }
 
@@ -43,17 +39,23 @@ class eppUpdateContactRequest extends eppContactRequest {
         if ($updateInfo instanceof eppContact) {
             $chgcmd = $this->createElement('contact:chg');
             $this->addContactChanges($chgcmd, $updateInfo);
-            $this->contactobject->appendChild($chgcmd);
+            if ($chgcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($chgcmd);
+            }
         }
         if ($removeInfo instanceof eppContact) {
             $remcmd = $this->createElement('contact:rem');
             $this->addContactStatus($remcmd, $removeInfo);
-            $this->contactobject->appendChild($remcmd);
+            if ($remcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($remcmd);
+            }
         }
         if ($addInfo instanceof eppContact) {
             $addcmd = $this->createElement('contact:add');
             $this->addContactStatus($addcmd, $addInfo);
-            $this->contactobject->appendChild($addcmd);
+            if ($addcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($addcmd);
+            }
         }
     }
 
@@ -95,10 +97,12 @@ class eppUpdateContactRequest extends eppContactRequest {
                 }
             }
             $postalinfo->setAttribute('type', $postal->getType());
-            if (!$postal->getName()=='') {
+            // Mandatory field
+            if (strlen($postal->getName())>0) {
                 $postalinfo->appendChild($this->createElement('contact:name', $postal->getName()));
             }
-            if (!$postal->getOrganisationName()=='') {
+            // Optional field
+            if (!is_null($postal->getOrganisationName())) {
                 $postalinfo->appendChild($this->createElement('contact:org', $postal->getOrganisationName()));
             }
             if ((($postal->getStreetCount()) > 0) || strlen($postal->getCity()) || strlen($postal->getProvince()) || strlen($postal->getZipcode()) || strlen($postal->getCountrycode())) {
@@ -124,20 +128,25 @@ class eppUpdateContactRequest extends eppContactRequest {
             }
             $element->appendChild($postalinfo);
         }
+        // Mandatory field
         if (strlen($contact->getVoice())) {
             $element->appendChild($this->createElement('contact:voice', $contact->getVoice()));
         }
-        if (strlen($contact->getFax())) {
+        // Optional field, may be empty
+        if (!is_null($contact->getFax())) {
             $element->appendChild($this->createElement('contact:fax', $contact->getFax()));
         }
+        // Mandatory field
         if (strlen($contact->getEmail())) {
             $element->appendChild($this->createElement('contact:email', $contact->getEmail()));
         }
-        if ($contact->getPassword()) {
+        // Optional field, may be empty
+        if (!is_null($contact->getPassword())) {
             $authinfo = $this->createElement('contact:authInfo');
             $authinfo->appendChild($this->createElement('contact:pw', $contact->getPassword()));
             $element->appendChild($authinfo);
         }
+        // Optional field, may be empty
         if (!is_null($contact->getDisclose())) {
             $type = $contact->getType();
             if ($type == $contact::TYPE_AUTO) {

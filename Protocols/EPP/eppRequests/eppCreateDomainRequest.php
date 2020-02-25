@@ -79,7 +79,7 @@ class eppCreateDomainRequest extends eppDomainRequest {
     /**
      *
      * @param eppDomain $domain
-     * @return \DOMElement
+     * @return \DOMElement | null
      * @throws eppException
      */
     public function setDomain(eppDomain $domain) {
@@ -116,12 +116,20 @@ class eppCreateDomainRequest extends eppDomainRequest {
         if ($domain->getContactLength() > 0) {
             foreach ($contacts as $contact) {
                 /* @var $contact eppContactHandle */
-                $this->addDomainContact($this->domainobject, $contact->getContactHandle(), $contact->getContactType());
+                if (in_array($contact->getContactType(),[eppContactHandle::CONTACT_TYPE_ADMIN,eppContactHandle::CONTACT_TYPE_BILLING,eppContactHandle::CONTACT_TYPE_TECH])) {
+                    $this->addDomainContact($this->domainobject, $contact->getContactHandle(), $contact->getContactType());
+                }
             }
         }
         if (strlen($domain->getAuthorisationCode())) {
             $authinfo = $this->createElement('domain:authInfo');
-            $authinfo->appendChild($this->createElement('domain:pw', $domain->getAuthorisationCode()));
+            if ($this->useCdata()) {
+                $pw = $authinfo->appendChild($this->createElement('domain:pw'));
+                $pw->appendChild($this->createCDATASection($domain->getAuthorisationCode()));
+            } else {
+                $authinfo->appendChild($this->createElement('domain:pw', $domain->getAuthorisationCode()));
+            }
+
             $this->domainobject->appendChild($authinfo);
         }
 
@@ -137,7 +145,7 @@ class eppCreateDomainRequest extends eppDomainRequest {
                 }
             }
         }
-        return;
+        return null;
     }
 
     /**
