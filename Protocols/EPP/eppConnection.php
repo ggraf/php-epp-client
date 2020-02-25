@@ -152,9 +152,6 @@ class eppConnection {
      */
     protected $verify_peer_name = true;
 
-    protected $logentries = array();
-
-
     protected $checktransactionids = true;
 
     /**
