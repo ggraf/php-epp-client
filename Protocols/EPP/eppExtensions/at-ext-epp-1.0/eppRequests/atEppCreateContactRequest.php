@@ -48,19 +48,9 @@ class atEppCreateContactRequest extends eppCreateContactRequest {
         $authinfo = $this->createElement('contact:authInfo');
         $authinfo->appendChild($this->createElement('contact:pw', $password));
         $this->contactobject->appendChild($authinfo);
-
-        // remove other child beforehand
-        $childNodes = $this->getCommand()->childNodes;
-
-        foreach ($childNodes as $singleChildNode) {
-            if ($singleChildNode->nodeName == 'create') {
-                $this->getCommand()->removeChild($singleChildNode);
-            }
-        }
-
-        $create = $this->createElement('create');
     }
-    
+
+
     /**
      * Set the postalinfo information in the contact, overwritten due to at-perontypes it might be possible
      * that the name field has been left emtpy and organisation has been set instead

@@ -31,41 +31,43 @@ class atEppUpdateContactRequest extends eppUpdateContactRequest
      * @param atEppContact $updateInfo
      * @return \domElement
      */
-    public function updateContact($contactid,atEppContact $addInfo,atEppContact $removeInfo,atEppContact $updateInfo) {
-
-        // remove other child beforehand
-        $childNodes = $this->getCommand()->childNodes;
-
-        foreach ($childNodes as $singleChildNode) {
-            if ($singleChildNode->nodeName == 'update') {
-                $this->getCommand()->removeChild($singleChildNode);
-            }
-        }
-
+    public function updateContact($contactid, $addInfo, $removeInfo, $updateInfo) {
         #
         # Object create structure
         #
-        $update = $this->createElement('update');
-        $this->contactobject = $this->createElement('contact:update');
+
         $this->contactobject->appendChild($this->createElement('contact:id', $contactid));
         if ($updateInfo instanceof eppContact) {
             $chgcmd = $this->createElement('contact:chg');
             $this->addContactChanges($chgcmd, $updateInfo);
-            $this->contactobject->appendChild($chgcmd);
+
+            /* @var $chgcmd \DOMNode */
+            if ($chgcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($chgcmd);
+            }
+
         }
-        if ($removeInfo instanceof eppContact && $removeInfo->getPostalInfoLength() != 0) {
+        if ($removeInfo instanceof eppContact) {
             $remcmd = $this->createElement('contact:rem');
             $this->addContactStatus($remcmd, $removeInfo);
-            $this->contactobject->appendChild($remcmd);
+
+            /* @var $remcmd \DOMNode */
+            if ($remcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($remcmd);
+            }
         }
-        if ($addInfo instanceof eppContact && $removeInfo->getPostalInfoLength() != 0) {
+        if ($addInfo instanceof eppContact) {
             $addcmd = $this->createElement('contact:add');
             $this->addContactStatus($addcmd, $addInfo);
-            $this->contactobject->appendChild($addcmd);
+
+            /* @var $addcmd \DOMNode */
+            if ($addcmd->hasChildNodes()) {
+                $this->contactobject->appendChild($addcmd);
+            }
         }
-        $update->appendChild($this->contactobject);
-        $this->getCommand()->appendChild($update);
+
         $this->setAtExtensions();
+        $this->epp->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
     }
 
     /**
@@ -106,11 +108,17 @@ class atEppUpdateContactRequest extends eppUpdateContactRequest
                 }
             }
             $postalinfo->setAttribute('type', $postal->getType());
-            if (strlen($postal->getName())) {
-                $postalinfo->appendChild($this->createElement('contact:name', $postal->getName()));
+            $organisation = $postal->getOrganisationName();
+            $name = $postal->getName();
+            if(!empty($organisation) && empty($name)){
+                $name =  $organisation;
+                $organisation="";
             }
-            if (strlen($postal->getOrganisationName())) {
-                $postalinfo->appendChild($this->createElement('contact:org', $postal->getOrganisationName()));
+            if(!empty($name)) {
+                $postalinfo->appendChild($this->createElement('contact:name', $name));
+            }
+            if(!empty($organisation)) {
+                $postalinfo->appendChild($this->createElement('contact:org', $organisation));
             }
             if ((($postal->getStreetCount()) > 0) || strlen($postal->getCity()) || strlen($postal->getProvince()) || strlen($postal->getZipcode()) || strlen($postal->getCountrycode())) {
                 $postaladdr = $this->createElement('contact:addr');

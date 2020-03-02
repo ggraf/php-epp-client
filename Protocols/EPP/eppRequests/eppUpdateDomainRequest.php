@@ -39,24 +39,40 @@ class eppUpdateDomainRequest extends eppDomainRequest {
      * @param eppDomain $updateInfo
      */
     public function updateDomain($domainname, $addInfo, $removeInfo, $updateInfo) {
+
         #
         # Object create structure
         #
         $this->domainobject->appendChild($this->createElement('domain:name', $domainname));
+
         if ($addInfo instanceof eppDomain) {
             $addcmd = $this->createElement('domain:add');
             $this->addDomainChanges($addcmd, $addInfo);
-            $this->domainobject->appendChild($addcmd);
+
+            /* @var $addcmd \DOMNode */
+            if ($addcmd->hasChildNodes()) {
+                $this->domainobject->appendChild($addcmd);
+            }
         }
+
         if ($removeInfo instanceof eppDomain) {
             $remcmd = $this->createElement('domain:rem');
             $this->addDomainChanges($remcmd, $removeInfo);
-            $this->domainobject->appendChild($remcmd);
+
+            /* @var $remcmd \DOMNode */
+            if ($remcmd->hasChildNodes()) {
+                $this->domainobject->appendChild($remcmd);
+            }
         }
+
         if ($updateInfo instanceof eppDomain) {
             $chgcmd = $this->createElement('domain:chg');
             $this->addDomainChanges($chgcmd, $updateInfo);
-            $this->domainobject->appendChild($chgcmd);
+
+            /* @var $chgcmd \DOMNode */
+            if ($chgcmd->hasChildNodes()) {
+                $this->domainobject->appendChild($chgcmd);
+            }
         }
     }
 
@@ -69,7 +85,9 @@ class eppUpdateDomainRequest extends eppDomainRequest {
         if ($domain->getRegistrant()) {
             $element->appendChild($this->createElement('domain:registrant', $domain->getRegistrant()));
         }
+
         $hosts = $domain->getHosts();
+
         if (is_array($hosts) && (count($hosts))) {
             $nameservers = $this->createElement('domain:ns');
             foreach ($hosts as $host) {
@@ -83,18 +101,21 @@ class eppUpdateDomainRequest extends eppDomainRequest {
             $element->appendChild($nameservers);
         }
         $contacts = $domain->getContacts();
+
         if (is_array($contacts)) {
             foreach ($contacts as $contact) {
                 /* @var eppContactHandle $contact */
                 $this->addDomainContact($element, $contact->getContactHandle(), $contact->getContactType());
             }
         }
+
         $statuses = $domain->getStatuses();
         if (is_array($statuses)) {
             foreach ($statuses as $status) {
                 $this->addDomainStatus($element, $status);
             }
         }
+
         if (strlen($domain->getAuthorisationCode())) {
             $authinfo = $this->createElement('domain:authInfo');
             if ($this->useCdata()) {
@@ -109,7 +130,6 @@ class eppUpdateDomainRequest extends eppDomainRequest {
         }
     }
 
-
     /**
      *
      * @param \domElement $element
@@ -120,7 +140,6 @@ class eppUpdateDomainRequest extends eppDomainRequest {
         $stat->setAttribute('s', $status);
         $element->appendChild($stat);
     }
-
 
     /**
      *

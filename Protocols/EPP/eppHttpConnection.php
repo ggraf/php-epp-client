@@ -20,6 +20,13 @@ class eppHttpConnection extends eppConnection {
 
     protected $ch = null;
 
+    /**
+     * Response
+     *
+     * @var string
+     */
+
+    private $response = null;
 
     /**
      * No need to connect
