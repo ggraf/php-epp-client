@@ -214,7 +214,7 @@ class eppConnection {
 
     }
 
-    function __construct($logging = false, $settingsfile = null) {
+    function __construct($logging, $settingsfile = null) {
         if ($logging) {
             $this->enableLogging();
         }
@@ -1185,7 +1185,7 @@ class eppConnection {
      * @return array
      * @throws eppException
      */
-    static function loadSettings($directory = null, $settingsfile) {
+    static function loadSettings($directory, $settingsfile) {
         if ($directory) {
             $path = $directory . '/' . $settingsfile;
         } else {

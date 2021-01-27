@@ -10,14 +10,14 @@ class eppTestCase extends TestCase {
      */
     protected $conn;
 
-    protected function setUp($configfile = null) {
+    protected function setUp($configfile = null) : void {
         if (!$configfile) {
             $configfile = dirname(__FILE__).'/testsetup.ini';
         }
         $this->conn = self::setupConnection($configfile);
     }
 
-    protected function tearDown() {
+    protected function tearDown() : void {
         self::teardownConncection($this->conn);
     }
 

@@ -3,7 +3,7 @@ namespace Metaregistrar\EPP;
 
 class noridEppConnection extends eppConnection {
 
-    public function __construct($logging = false, $settingsFile = null) {
+    public function __construct($logging, $settingsfile = null) {
         // Construct the EPP connection object
         parent::__construct($logging, $settingsFile);
 

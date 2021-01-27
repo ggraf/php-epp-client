@@ -3,7 +3,7 @@ namespace Metaregistrar\EPP;
 
 class euridEppConnection extends eppConnection {
 
-    public function __construct($logging = false, $settingsfile = null) {
+    public function __construct($logging, $settingsfile = null) {
         parent::__construct($logging, $settingsfile);
 
         parent::enableDnssec();

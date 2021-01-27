@@ -4,7 +4,7 @@ namespace Metaregistrar\EPP;
 
 class dnsbeEppConnection extends eppConnection {
 
-    public function __construct($logging = false, $settingsfile = null) {
+    public function __construct($logging, $settingsfile = null) {
         parent::__construct($logging, $settingsfile);
 
         #parent::addExtension('keygroup','http://www.dns.be/xml/epp/keygroup-1.0');
